@@ -1,16 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
-let nextId = 1
-
 function App() {
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('tasks')) ?? []
+    } catch {
+      return []
+    }
+  })
   const [input, setInput] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+  }, [tasks])
 
   const addTask = () => {
     const text = input.trim()
     if (!text) return
-    setTasks([...tasks, { id: nextId++, text, done: false }])
+    const newId = tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1
+    setTasks([...tasks, { id: newId, text, done: false }])
     setInput('')
   }
 
